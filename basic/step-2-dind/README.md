@@ -218,6 +218,13 @@ docker stack deploy -c /stack/visualizer.yml visualizer
   # === RESULT ===
   # Creating network visualizer_default
   # Creating service visualizer_app
+
+# REMOVE STACK
+docker container exec -it manager \
+docker stack rm visualizer
+  # === RESULT ===
+  # Removing service visualizer_default
+  # Removing service visualizer_app
 ```
 
 ### Approach in Web Browser at `localhost:9000`.
@@ -260,6 +267,12 @@ docker service ls
 curl http://localhost:8000
   # === RESULT ===
   # Hello Docker!!&
+
+# REMOVE STACK
+docker container exec -it manager \
+docker stack rm ingress
+  # === RESULT ===
+  # Removing service ingress_haproxy
 ```
 
 ### Approach in Web Browser at `localhost:8000`.
@@ -269,3 +282,37 @@ curl http://localhost:8000
 -> `worker:80`
 
 ![01](./localhost-8000-ingress.png)
+
+---
+
+## Finish!
+
+### Remove all Service & stack
+
+```bash
+# REMOVE STACK
+docker container exec -it manager \
+docker stack rm ingress
+  # === RESULT ===
+  # Removing service ingress_haproxy
+
+# REMOVE STACK
+docker container exec -it manager \
+docker stack rm visualizer
+  # === RESULT ===
+  # Removing service visualizer_default
+  # Removing service visualizer_app
+
+# REMOVE STACK
+docker container exec -it manager \
+docker stack rm echo_stack
+  # === RESULT ===
+  # Removing service echo_stack_api
+  # Removing service echo_stack_nginx
+
+# CHECK REMOVE
+docker container exec -it manager \
+docker service ls
+  # === RESULT ===
+  # ID                  NAME                MODE                REPLICAS            IMAGE               PORTS
+```
