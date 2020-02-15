@@ -82,3 +82,55 @@ docker image pull registry:5000/example/echo:latest
 #### Fininsh!
 
 This procedure is the basic method of using private docker registry.
+
+---
+
+## Service
+
+The `service` of docker swarm is the `unit` that containers are `part of application`.
+
+### Make service from registry.
+
+```bash
+# RUN 1 SERVICE REPLICA
+docker container exec -it manager \
+docker service create --replicas 1 \
+--publish 8000:8080 \
+--name echo_replica \
+registry:5000/example/echo:latest
+  # === RESULT ===
+  # overall progress: 1 out of 1 tasks
+  # 1/1: running   [==================================================>]
+  # verify: Service converged
+
+# CHECK 1 REPlICA
+docker container exec -it manager \
+docker service ls
+
+# CHECK 1 CONTAINER
+docker container exec -it manager \
+docker service ps echo_replica
+```
+
+### Scale out the service.
+
+```bash
+# SCALE OUT UPTO 6 SERVICE REPLICAS
+docker container exec -it manager \
+docker service scale echo_replica=6
+  # === RESULT ===
+  # echo_replica scaled to 6
+  # overall progress: 6 out of 6 tasks
+  # 1/6: running   [==================================================>]
+  # ...
+  # 6/6: running   [==================================================>]
+  # verify: Service converged
+
+# CHECK 6 REPLICAS
+docker container exec -it manager \
+docker service ls
+
+# CHECK 6 CONTAINERS
+docker container exec -it manager \
+docker service ps echo_replica
+```
