@@ -209,6 +209,8 @@ docker stack rm echo_stack
 Visualize with visualizer container
 
 ```bash
+# `./stack/*` DIRECTORY IS MOUNTED IN MANAGERE CONTAINER AT `/stack/*` DIRECTORY
+
 # DEPLOY 'visualizer.yml' STACK
 # (TO DEPLOY, `echo_stack` IS REQUIRED.)
 docker container exec -it manager \
@@ -218,5 +220,52 @@ docker stack deploy -c /stack/visualizer.yml visualizer
   # Creating service visualizer_app
 ```
 
-Approach in Web Browser at `localhost:9000` that is port-forward to manager container's `:8080` port.
+### Approach in Web Browser at `localhost:9000`.
+
+`localhost:9000`  
+-> (`manager` ports forwarding 9000:9000) [->(`visualizer` port-forwarding 9000:80)]  
+-> `visualizer_app:80`
+
 ![01](./localhost-9000-visualizer.png)
+
+---
+
+## Ingress
+
+Let's approach to manager & workers from host!
+
+### Using HAProxy container
+
+```bash
+# `./stack/*` DIRECTORY IS MOUNTED IN MANAGERE CONTAINER AT `/stack/*` DIRECTORY
+
+# DEPLOY 'ingress.yml' STACK
+# (TO DEPLOY, `echo_stack` IS REQUIRED.)
+docker container exec -it manager \
+docker stack deploy -c /stack/ingress.yml ingress
+  # === RESUlT ===
+  # Creating service ingress_haproxy
+
+# CHECK DEPLOYED SERVICES
+docker container exec -it manager \
+docker service ls
+  # === RESULT ===
+  # ID            NAME              MODE        REPLICAS   IMAGE                               PORTS
+  # nrjgsx6p3w92  echo_stack_api    replicated  3/3        registry:5000/example/echo:latest
+  # qizyw0oor7i6  echo_stack_nginx  replicated  3/3        gihyodocker/nginx-proxy:latest
+  # zd3d74pekug3  ingress_haproxy   global      1/1        dockercloud/haproxy:latest          *:80->80/tcp, *:1936->1936/tcp
+  # om9uyib0k5de  visualizer_app    global      1/1        dockersamples/visualizer:latest     *:9000->8080/tcp
+
+# INGRESS TO WORKER CONTAINER
+curl http://localhost:8000
+  # === RESULT ===
+  # Hello Docker!!&
+```
+
+### Approach in Web Browser at `localhost:8000`.
+
+`localhost:8000`  
+-> (`manager` ports-forwarding 8000:80) [-> (`ingress` prot-forwarding 80:80)]  
+-> `worker:80`
+
+![01](./localhost-8000-ingress.png)
