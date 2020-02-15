@@ -133,4 +133,90 @@ docker service ls
 # CHECK 6 CONTAINERS
 docker container exec -it manager \
 docker service ps echo_replica
+
+# REMOVE SERVICE
+docker container exec -it manager \
+docker service rm echo_replica
 ```
+
+---
+
+## Stack
+
+The `stack` of docker swarm is the `group of services` that is consist of `entire application`.  
+Simple, stack is compose that can do these - scale in/out and set contstraints.
+
+Stack uses overlay docker network in where docker containers can communicate with each other.
+
+```bash
+# MAKE OVERLAY NETWORK
+docker container exec -it manager \
+docker network create --driver=overlay --attachable netcluster
+
+# CHECK << scope is swarm
+docker container exec -it manager \
+docker network ls | grep overlay
+```
+
+### Use stack!
+
+Using `stack/webapi.yml` can be provisioned below result.
+
+- In netcluster overlay network..
+- nginx proxy container (Front-end)
+- echo container (Back-end)
+
+```bash
+# `./stack/*` DIRECTORY IS MOUNTED IN MANAGERE CONTAINER AT `/stack/*` DIRECTORY
+
+# DEPLOY 'webapi.yml' STACK
+docker container exec -it manager \
+docker stack deploy -c /stack/webapi.yml echo_stack
+  # === RESULT ===
+  # Creating service echo_stack_api
+  # Creating service echo_stack_nginx
+
+# CHECK STACK DEPLOYED
+docker container exec -it manager \
+docker stack services echo_stack
+  # === RESULT ===
+  # ID            NAME              MODE        REPLICAS  IMAGE
+  # 5ojgjuffoj26  echo_stack_nginx  replicated  3/3       gihyodocker/nginx-proxy:latest
+  # n30mih757g4w  echo_stack_api    replicated  3/3       registry:5000/example/echo:latest
+
+# CHECK STACK CONTAINER PROCESS
+docker container exec -it manager \
+docker stack ps echo_stack
+  # === RESULT ===
+  # ID            NAME                 IMAGE                               NODE           DESIRED STATE   CURRENT STATE          ERROR    PORTS
+  # msuadp2rqs97  echo_stack_nginx.1   gihyodocker/nginx-proxy:latest      536719e34abf   Running         Running 1 second ago
+  # awfcyp53q8v7  echo_stack_api.1     registry:5000/example/echo:latest   58bdf1954514   Running         Running 28 seconds ago
+  # u0tp5e0r9fkw  echo_stack_nginx.2   gihyodocker/nginx-proxy:latest      cf269e6164dd   Running         Running 1 second ago
+  # fxnogpu8da27  echo_stack_api.2     registry:5000/example/echo:latest   536719e34abf   Running         Running 28 seconds ago
+  # mbmjvc6tfe5d  echo_stack_nginx.3   gihyodocker/nginx-proxy:latest      58bdf1954514   Running         Running 1 second ago
+  # vzejdcy9qv1p  echo_stack_api.3     registry:5000/example/echo:latest   cf269e6164dd   Running         Running 28 seconds ago
+
+# REMOVE STACK
+docker container exec -it manager \
+docker stack rm echo_stack
+  # === RESULT ===
+  # Removing service echo_stack_api
+  # Removing service echo_stack_nginx
+```
+
+### View the status of stack!
+
+Visualize with visualizer container
+
+```bash
+# DEPLOY 'visualizer.yml' STACK
+# (TO DEPLOY, `echo_stack` IS REQUIRED.)
+docker container exec -it manager \
+docker stack deploy -c /stack/visualizer.yml visualizer
+  # === RESULT ===
+  # Creating network visualizer_default
+  # Creating service visualizer_app
+```
+
+Approach in Web Browser at `localhost:9000` that is port-forward to manager container's `:8080` port.
+![01](./localhost-9000-visualizer.png)
