@@ -1,10 +1,10 @@
 # Docker Swarm Tutorial
 
-Study with '[**도커/쿠버네티스**를 활용한 컨테이너 개발 실전 입문 (위키북스)](https://github.com/wikibook/docker-kubernetes){:target="\_blank"}'
+Study with '[**도커/쿠버네티스**를 활용한 컨테이너 개발 실전 입문 (위키북스)](https://github.com/wikibook/docker-kubernetes)'
 
 ## Key words
 
-[클라우드 네이티브 아키텍처 디자인 백서 (REDHAT)](https://www.redhat.com/cms/managed-files/cl-cloud-native-container-design-whitepaper-f8808kc-201710-a4-ko.pdf){:target="\_blank"}
+[클라우드 네이티브 아키텍처 디자인 백서 (REDHAT)](https://www.redhat.com/cms/managed-files/cl-cloud-native-container-design-whitepaper-f8808kc-201710-a4-ko.pdf)
 
 ### SOLID: 객체지향 설계 원칙 from Rovert C. Martin
 
